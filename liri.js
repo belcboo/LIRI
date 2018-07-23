@@ -13,7 +13,7 @@ var option1 = process.argv[3];
 var storeData = "";
 var textFile = "log.txt";
 var logval = "";
-var separator = "\n--------------------------------------------------------------\n"
+var separator = "\n--------------------------------------------------------------------------------------------------------------------------------\n"
 var date;
 
 let spotify = new Spotify(keys.spotify);
@@ -60,10 +60,18 @@ var omdbLogic = {
 }
 
 var spotifyLogic = {
+  evaluator: function(){
+    if(option1 === undefined){
+      option1 = "All the Small Things"
+      spotifyLogic.search();
+    } else{
+      spotifyLogic.search();
+    }
+  },
   search: function() {
     spotify.search({
         type: 'track',
-        query: 'All the Small Things'
+        query: option1
       })
       .then(function(response) {
         // console.log(response);
@@ -86,9 +94,7 @@ var spotifyLogic = {
         "\nPreview URL: " + storeData.items[x].preview_url,
         separator);
     };
-
   }
-
 };
 
 switch (operation) {
@@ -97,6 +103,6 @@ switch (operation) {
     omdbLogic.evaluator();
     break;
   case 'spotify':
-    spotifyLogic.search();
+    spotifyLogic.evaluator();
     break;
 }
