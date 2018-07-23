@@ -13,8 +13,8 @@ var option1 = process.argv[3];
 var storeData = "";
 var textFile = "log.txt";
 var logval = "";
+var separator = "\n--------------------------------------------------------------\n"
 var date;
-
 
 let spotify = new Spotify(keys.spotify);
 let client = new Twitter(keys.twitter);
@@ -63,16 +63,31 @@ var spotifyLogic = {
   search: function() {
     spotify.search({
         type: 'track',
-        query: 'All the Small Thingconsole.log(s'
+        query: 'All the Small Things'
       })
       .then(function(response) {
         // console.log(response);
-        console.log(response.tracks.items[0]);
+        // console.log(response.tracks.items[0]);
+        storeData = response.tracks;
+        console.log()
+        spotifyLogic.print();
       })
       .catch(function(err) {
         console.log(err);
       });
   },
+
+  print: function() {
+    for (var x = 0; x < 20; x++) {
+      console.log(separator + "Songs Information #" + (x + 1),
+        "\nName: " + storeData.items[x].name,
+        "\nArtist: " + storeData.items[x].artists[0].name,
+        "\nAlbum: " + storeData.items[x].album.name,
+        "\nPreview URL: " + storeData.items[x].preview_url,
+        separator);
+    };
+
+  }
 
 };
 
