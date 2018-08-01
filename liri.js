@@ -97,6 +97,22 @@ var spotifyLogic = {
   }
 };
 
+var twitterLogic = {
+  search: function() {
+    client.get('search/tweets', {q: 'MeFjGarcia'}, function(error, tweets, response) {
+      storeData = tweets;
+      twitterLogic.print();
+    });
+  },
+
+  print: function() {
+    console.log("This are your last tweets.");
+    for(var i =0 in storeData.statuses){
+      console.log(separator + storeData.statuses[i].text + separator);
+    }
+  }
+}
+
 switch (operation) {
   case 'movie-this':
     console.log(logval);
@@ -105,4 +121,6 @@ switch (operation) {
   case 'spotify':
     spotifyLogic.evaluator();
     break;
+  case 'my-tweets':
+    twitterLogic.search();
 }
