@@ -9,7 +9,7 @@ var fs = require("fs");
 //Declaring global variables.
 
 var operation = process.argv[2];
-var option1 = process.argv[3];
+var option = process.argv[3];
 var storeData = "";
 var textFile = "log.txt";
 var logval = "";
@@ -22,16 +22,16 @@ let client = new Twitter(keys.twitter);
 //OMDB Functionallity.
 var omdbLogic = {
   validator: function() { //Checks if user type or not a movie.
-    if (option1 === undefined) { //If not sets the option to "Mr Nobody" and then calls the pull function
-      option1 = "Mr. Nobody";
+    if (option === undefined) { //If not sets the option to "Mr Nobody" and then calls the pull function
+      option = "Mr. Nobody";
       omdbLogic.pull();
     } else { //If there's a movie typed by the user then only calls the pull function.
       omdbLogic.pull();
     }
   },
   pull: function() {
-    logval += "movie-this " + option1 + "\n"
-    request("http://www.omdbapi.com/?t=" + option1 + "&y=&plot=short&apikey=trilogy", function(error, response, body) {
+    logval += "movie-this " + option + "\n"
+    request("http://www.omdbapi.com/?t=" + option + "&y=&plot=short&apikey=trilogy", function(error, response, body) {
 
       // If the request is successful (i.e. if the response status code is 200)
       if (!error && response.statusCode === 200) {
@@ -60,18 +60,18 @@ var omdbLogic = {
 }
 
 var spotifyLogic = {
-  validator: function(){
-    if(option1 === undefined){
-      option1 = "All the Small Things"
+  validator: function() {
+    if (option === undefined) {
+      option = "All the Small Things"
       spotifyLogic.search();
-    } else{
+    } else {
       spotifyLogic.search();
     }
   },
   search: function() {
     spotify.search({
         type: 'track',
-        query: option1
+        query: option
       })
       .then(function(response) {
         // console.log(response);
@@ -98,16 +98,18 @@ var spotifyLogic = {
 };
 
 var twitterLogic = {
-  validator: function(){
-    if (option1 === undefined){
-      option1 = 'MeFjGarcia';
+  validator: function() {
+    if (option === undefined) {
+      option = 'MeFjGarcia';
       twitterLogic.search();
-    } else{
+    } else {
       twitterLogic.search();
     }
   },
   search: function() {
-    client.get('search/tweets', {q: option1}, function(error, tweets, response) {
+    client.get('search/tweets', {
+      q: option
+    }, function(error, tweets, response) {
       storeData = tweets;
       twitterLogic.print();
     });
@@ -115,20 +117,61 @@ var twitterLogic = {
 
   print: function() {
     console.log("This are your lastest tweets.");
-    for(var i =0 in storeData.statuses){
+    for (var i = 0 in storeData.statuses) {
       console.log(separator + storeData.statuses[i].text + separator);
     }
   }
 }
 
-switch (operation) {
-  case 'movie-this':
-    omdbLogic.validator();
-    break;
-  case 'spotify':
-    spotifyLogic.validator();
-    break;
-  case 'my-tweets':
-    twitterLogic.validator();
-    break;
+function random() {
+  var randomNo = Math.floor(Math.random() * 6);
+  //Check if number is pair or not to define the two numbers to use
+  var pairOrNot = randomNo % 2;
+  //Assing value to 2 variables used to select random items from random.txt
+  if (pairOrNot === 0) {
+    var random1 = randomNo;
+    var random2 = randomNo + 1;
+  } else {
+    var random1 = randomNo - 1;
+    var random2 = randomNo;
+  }
+
+  console.log(randomNo, random1, random2);
+
+  //reading the file and pushin the lines to an array.
+  fs.readFile("random.txt", "utf8", function(err, data) {
+    if (err) {
+      return console.log(err);
+    }
+
+    //Pushing data to Array.
+    var dataArr = data.split(",");
+    console.log(dataArr);
+
+    //Assingning values from the random.txt to the argvs using the randomn #s generated above.
+    operation = dataArr[random1];
+    option = dataArr[random2];
+
+    //calls start to re-evaluate the new values asignated and run the program.
+    start();
+  });
+};
+
+function start() {
+  switch (operation) {
+    case 'movie':
+      omdbLogic.validator();
+      break;
+    case 'spotify':
+      spotifyLogic.validator();
+      break;
+    case 'twitter':
+      twitterLogic.validator();
+      break;
+    default:
+      console.log("A random action will be executed...");
+      random();
+  }
 }
+//Execute the program for the first time.
+start();
