@@ -12,7 +12,6 @@ var operation = process.argv[2];
 var option = process.argv[3];
 var storeData = "";
 var textFile = "log.txt";
-var logval = "";
 var separator = "\n--------------------------------------------------------------------------------------------------------------------------------\n"
 var date;
 
@@ -30,7 +29,6 @@ var omdbLogic = {
     }
   },
   pull: function() {
-    logval += "movie-this " + option + "\n"
     request("http://www.omdbapi.com/?t=" + option + "&y=&plot=short&apikey=trilogy", function(error, response, body) {
 
       // If the request is successful (i.e. if the response status code is 200)
@@ -49,14 +47,10 @@ var omdbLogic = {
       "\nLanguage: " + storeData.Language,
       "\nActors: " + storeData.Actors,
       "\nPlot: " + storeData.Plot);
-    omdbLogic.log();
-  },
 
-  log: function() {
-    // date = new Date();
-    // console.log(date);
-    fs.appendFile(textFile, logval, function(err) {});
-  },
+      //I know, this line is AWFUL, but I didn't wanted to had to write the log line by line lol.
+      appendToFile(separator + "Commands: " + "movie " + option + "\nResponse: \nTitle: " + storeData.Title + "\nYear: " + storeData.Year + "\nIMDB: " + storeData.imdbRating + "\nRating Roten Tomatoes: " + storeData.Ratings[1].Value + "\nCountry: " + storeData.Country + "\nLanguage: " + storeData.Language + "\nActors: " + storeData.Actors + "\nPlot: " + storeData.Plot + separator);
+  }
 }
 
 var spotifyLogic = {
@@ -74,8 +68,6 @@ var spotifyLogic = {
         query: option
       })
       .then(function(response) {
-        // console.log(response);
-        // console.log(response.tracks.items[0]);
         storeData = response.tracks;
         console.log()
         spotifyLogic.print();
@@ -86,6 +78,7 @@ var spotifyLogic = {
   },
 
   print: function() {
+    appendToFile(separator + "Command: spotify " + option + "\nResponse:");
     for (var x = 0; x < 20; x++) {
       console.log(separator + "Songs Information #" + (x + 1),
         "\nName: " + storeData.items[x].name,
@@ -93,7 +86,11 @@ var spotifyLogic = {
         "\nAlbum: " + storeData.items[x].album.name,
         "\nPreview URL: " + storeData.items[x].preview_url,
         separator);
+
+        //Login to txt.
+        appendToFile("\nSongs Information #" + (x + 1) + "\nName: " + storeData.items[x].name + "\nArtist: " + storeData.items[x].artists[0].name + "\nAlbum: " + storeData.items[x].album.name + "\nPreview URL: " + storeData.items[x].preview_url + "\n");
     };
+    appendToFile(separator);
   }
 };
 
@@ -117,8 +114,10 @@ var twitterLogic = {
 
   print: function() {
     console.log("This are your lastest tweets.");
+    appendToFile(separator + "Command: twitter " + option + "\nResponse:\n");
     for (var i = 0 in storeData.statuses) {
       console.log(separator + storeData.statuses[i].text + separator);
+      appendToFile("\nCounter: " + i + "\n" +  storeData.statuses[i].text + "\n");
     }
   }
 }
@@ -136,8 +135,6 @@ function random() {
     var random2 = randomNo;
   }
 
-  console.log(randomNo, random1, random2);
-
   //reading the file and pushin the lines to an array.
   fs.readFile("random.txt", "utf8", function(err, data) {
     if (err) {
@@ -152,9 +149,17 @@ function random() {
     operation = dataArr[random1];
     option = dataArr[random2];
 
+    appendToFile(separator + "Command: The command was left empty.\nA random command was generated with the following values:\nOperation = " + operation + " Option = " + option + "\nBelow you'll see the results.");
     //calls start to re-evaluate the new values asignated and run the program.
     start();
   });
+};
+
+function appendToFile(str){
+    fs.appendFile('log.txt',str,function(err) {
+        if(err)
+            console.log(err);
+    })
 };
 
 function start() {
