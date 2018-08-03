@@ -21,7 +21,7 @@ let client = new Twitter(keys.twitter);
 
 //OMDB Functionallity.
 var omdbLogic = {
-  evaluator: function() { //Checks if user type or not a movie.
+  validator: function() { //Checks if user type or not a movie.
     if (option1 === undefined) { //If not sets the option to "Mr Nobody" and then calls the pull function
       option1 = "Mr. Nobody";
       omdbLogic.pull();
@@ -60,7 +60,7 @@ var omdbLogic = {
 }
 
 var spotifyLogic = {
-  evaluator: function(){
+  validator: function(){
     if(option1 === undefined){
       option1 = "All the Small Things"
       spotifyLogic.search();
@@ -98,15 +98,23 @@ var spotifyLogic = {
 };
 
 var twitterLogic = {
+  validator: function(){
+    if (option1 === undefined){
+      option1 = 'MeFjGarcia';
+      twitterLogic.search();
+    } else{
+      twitterLogic.search();
+    }
+  },
   search: function() {
-    client.get('search/tweets', {q: 'MeFjGarcia'}, function(error, tweets, response) {
+    client.get('search/tweets', {q: option1}, function(error, tweets, response) {
       storeData = tweets;
       twitterLogic.print();
     });
   },
 
   print: function() {
-    console.log("This are your last tweets.");
+    console.log("This are your lastest tweets.");
     for(var i =0 in storeData.statuses){
       console.log(separator + storeData.statuses[i].text + separator);
     }
@@ -115,12 +123,12 @@ var twitterLogic = {
 
 switch (operation) {
   case 'movie-this':
-    console.log(logval);
-    omdbLogic.evaluator();
+    omdbLogic.validator();
     break;
   case 'spotify':
-    spotifyLogic.evaluator();
+    spotifyLogic.validator();
     break;
   case 'my-tweets':
-    twitterLogic.search();
+    twitterLogic.validator();
+    break;
 }
